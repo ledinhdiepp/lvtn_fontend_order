@@ -1,0 +1,201 @@
+import React, { Component } from "react";
+import Cookie from "js-cookie";
+import "../style/purchase.scss";
+import axios from "axios";
+export default class Allpurchase extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      loading: true,
+      authenticate: true,
+      note: "",
+      orders: [],
+    };
+  }
+  async componentDidMount() {
+    if (Cookie.get("role") === "Public") {
+      let response = await fetch(
+        process.env.REACT_APP_BACKEND_URL + "/orders",
+        {
+          headers: {
+            Authorization: "bearer " + Cookie.get("token"),
+          },
+        }
+      );
+      if (!response.ok) {
+        return;
+      }
+      let orders = await response.json();
+      this.setState({
+        loading: false,
+        authenticate: true,
+        orders: orders,
+      });
+      return;
+    }
+    this.setState({ authenticate: false });
+  }
+  removeOrder = (id,index) =>{
+    
+    let orders = this.state.orders;
+    let productList = []
+    orders.map((order)=>{
+      order.productList[index].status = 'Cancelled';
+      productList = order.productList;
+    })
+    alert("Bạn đã hủy thành công đơn hàng!");
+    this.setState({orders:orders})
+    console.log(id)
+    axios
+      .put(process.env.REACT_APP_BACKEND_URL + '/orders/' + id, {
+        productList: productList,
+      },{
+        headers: {
+          'Authorization':'bearer '+ Cookie.get('token'),
+        },
+      })
+      .then(response => {
+       
+      })
+      .catch(error => {
+        alert('An error occurred, please check again.');
+        console.log('An error occurred:', error.response);
+      });
+    return
+  }
+  SetOrder = (id, index) => {
+    let orders = this.state.orders;
+    let productList = [];
+    orders.map((order) => {
+      order.productList[index].status = "Checking";
+      productList = order.productList;
+    });
+    alert("Bạn đã đặt lại hàng thành công!");
+    this.setState({ orders: orders });
+    console.log(id);
+    axios
+      .put(
+        process.env.REACT_APP_BACKEND_URL + "/orders/" + id,
+        {
+          productList: productList,
+        },
+        {
+          headers: {
+            Authorization: "bearer " + Cookie.get("token"),
+          },
+        }
+      )
+      .then((response) => {})
+      .catch((error) => {
+        alert("An error occurred, please check again.");
+      });
+    return;
+  };
+
+  
+  render() {
+    console.log(this.props.match.params.id)
+    return (
+      <div className="d-flex justify-content-center row">
+        
+        {/* <div class="active-cyan-4 mb-4">
+  <input class="form-control" type="text" placeholder="Search" aria-label="Search" />
+</div> */}
+          {this.state.orders.map((order, index) => {
+            
+            if(order.id ===this.props.match.params.id){
+              return (
+              <div className="col-md-10" key={index}>
+              
+                {order.productList.map((item, index) => {
+                  console.log(item) 
+                  return (
+                    <>
+                    <div className="row p-2 bg-white border rounded" key={index}>
+                      <div className="col-md-3 mt-1">
+                        <img
+                          className="img-fluid img-responsive rounded product-image"
+                          src={process.env.REACT_APP_BACKEND_URL + item.product.image.url}
+                          alt=""
+                        />
+                      </div>
+                      <div className="col-md-6 mt-1">
+                        <h5>{item.product.name}</h5>
+                        <div className="d-flex flex-row">Category : Kaki</div>
+                        <div className="d-flex flex-row">Số cuộn : {item.quantity}</div>
+                        <div className="d-flex flex-row">Số Met : {item.met}</div>
+                        <div className="mt-1 mb-1 spec-1">
+                          <span>Màu: </span>
+                          <span className="dot" />
+                          <span>{item.color}</span>
+                        
+                        </div>
+                        <div className="mt-1 mb-1 spec-1">
+                          <span>Unique design</span>
+                          <span className="dot" />
+                          <span>For men</span>
+                          <span className="dot" />
+                          <span>
+                            Casual
+                            <br />
+                          </span>
+                        </div>
+                        <p className="text-justify text-truncate para mb-0">
+                         {item.product.description}
+                          <br />
+                          <br />
+                        </p>
+                      </div>
+                      <div className="align-items-center align-content-center col-md-3 border-left mt-1">
+                        <div className="d-flex flex-row align-items-center">
+                          <h4 className="mr-1">{item.product.price}</h4>
+                          <span style={{marginLeft:80+'px'}} className="strike-text">{item.status}</span>
+                        </div>
+                        <h6 className="text-success">Free shipping</h6>
+                        <div className="d-flex flex-column mt-4">
+                          <button
+                            className="btn btn-primary btn-sm"
+                            type="button"
+                          >
+                            Liên hệ người bán
+                          </button>
+                          {item.status==='Checking' 
+                            ? 
+                              <button
+                              className="btn btn-outline-primary btn-sm mt-2"
+                              type="button"
+                              onClick ={() =>this.removeOrder(order.id,index)}
+                              >Hủy đơn đặt hàng
+                              </button> 
+
+                            : 
+                              item.status === 'Cancelled' ?
+                                <button
+                                className="btn btn-outline-primary btn-sm mt-2"
+                                type="button"
+                                onClick ={() =>this.SetOrder(order.id,index)}
+                                >Đặt lại đơn hàng
+                                </button>
+                                :
+                                    <></>
+
+
+                          }
+
+                        </div>
+                      </div>
+                      </div>
+                    </>
+                  );
+                })}
+             
+              </div>
+            );
+            }
+            
+          })}
+        
+      </div>
+    );
+  }
+}

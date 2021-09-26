@@ -10,16 +10,12 @@ import ProductDetail from './view/public/ProductDetails/ProductDetail'
 import Shopcart from './view/client/Shopcart'
 import Checkout from './view/client/Checkout'
 import Profile from './view/client/profile'
-
 import Server from './view/server/'
 import {Services,News,Team} from './view/public/components/export'
-
-
 import './App.css'
-import ProducItem from './view/public/Shops/ProducItem'
-import Purchase from './view/client/Purchase/index';
-import Orderspurchase from './view/client/Purchase/Orderspurchase';
+import Order from './view/client/Purchase/Order'
 
+import Footer from "./components/Footer";
 
 class App extends Component {
 	render() {
@@ -46,9 +42,11 @@ class App extends Component {
 						<Route path='/admin' component={Server} />
 						<Route path='/login' component={Login} />
 						<Route path='/register' component={Register} />
-						<Route path='/purchase/:id' component={Purchase} />
-						<Route path='/purchase' component={Orderspurchase} />
+						<Route path='/purchase' component={Order} />
+						
+						
 					</Switch>
+					<Footer />
 				</Router>
 			</div>
 		)

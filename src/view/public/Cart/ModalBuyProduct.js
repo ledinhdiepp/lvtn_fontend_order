@@ -10,10 +10,31 @@ class ModalBuyProduct extends Component {
     this.state ={
       loading :true,
       authenticate: true,
-      quantity:1,
+      quantity:0,
       color : "RED",
-      met :1
+      met :0,
+      products : []
     }
+  }
+
+  async componentDidMount(){
+    if (Cookie.get("role") === "Public") {
+      let response = await fetch(
+        process.env.REACT_APP_BACKEND_URL + "/products",
+        {
+          headers: {
+            Authorization: "bearer " + Cookie.get("token"),
+          },
+        }
+      );
+      if (!response.ok) {
+        return;
+      }
+      let products = await response.json();
+      this.setState({products: products})
+      return;
+    }
+    this.setState({ authenticate: false });
   }
   handleMeter = (e) =>{
     this.setState({
@@ -38,15 +59,23 @@ class ModalBuyProduct extends Component {
 
   addtocart = () =>{
     var {productdetail} = this.props;
+    if(this.state.quantity ===0 ){
+      alert('vui loong chon so luong')
+      return
+    }
+    if(this.state.met ===0 ){
+      alert('vui loong chon so met')
+      return
+    }
     let item = {
       product:       
         {
           id:productdetail.id,
           name:productdetail.name,
           image: {url: productdetail.image.url},
-          price : productdetail.price
+          price : productdetail.price,
+          description:productdetail.description
         },
-      status: "Checking",
       color: this.state.color,
       quantity: this.state.quantity,
       met : this.state.met
@@ -65,7 +94,7 @@ class ModalBuyProduct extends Component {
     
   }
   render() {
-    
+    console.log(this.state.products)
     var {productdetail} = this.props;
     return (
       <div className='ModalBuyProduct'>
@@ -81,14 +110,24 @@ class ModalBuyProduct extends Component {
                   <div className="form-group jkl pt-3"><input type="number" className="form-control inp" placeholder="Số mét" onChange={(e)=>this.handleMeter(e)}/></div>
                   <div className="mt-1"> <span className="fw-bold">Color</span>
                     <select onChange={(e) =>this.handlecolor(e)}>
-                      <option value="RED">Đỏ</option>
-                      <option value="PURPIL">Tím</option>
+                      {this.state.products.map((product,index)=>{
+                          if(product.name !== productdetail.name){
+                            return(
+                               <></>
+                            )
+                          }
+                          else{
+                            return <option value={product.color}>{product.color}</option>
+                          }
+                      })}
+                      
+                      {/* <option value="PURPIL">Tím</option>
                       <option value="YELLOW">Vàng</option>
                       <option value="GREEN">Xanh Lục</option>
                       <option value="BLACK">Đen</option>
                       <option value="WHITE">Trắng</option>
                       <option value="PINK">Hồng</option>
-                      <option value="BLUE">Xanh Dương</option>
+                      <option value="BLUE">Xanh Dương</option> */}
                     </select>
                   </div>
 

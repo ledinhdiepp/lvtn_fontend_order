@@ -11,31 +11,31 @@ class ModalBuyProduct extends Component {
       loading :true,
       authenticate: true,
       quantity:0,
-      color : "RED",
+      color : "",
       met :0,
-      products : []
+      
     }
   }
 
-  async componentDidMount(){
-    if (Cookie.get("role") === "Public") {
-      let response = await fetch(
-        process.env.REACT_APP_BACKEND_URL + "/products",
-        {
-          headers: {
-            Authorization: "bearer " + Cookie.get("token"),
-          },
-        }
-      );
-      if (!response.ok) {
-        return;
-      }
-      let products = await response.json();
-      this.setState({products: products})
-      return;
-    }
-    this.setState({ authenticate: false });
-  }
+  // async componentDidMount(){
+  //   if (Cookie.get("role") === "Public") {
+  //     let response = await fetch(
+  //       process.env.REACT_APP_BACKEND_URL + "/products",
+  //       {
+  //         headers: {
+  //           Authorization: "bearer " + Cookie.get("token"),
+  //         },
+  //       }
+  //     );
+  //     if (!response.ok) {
+  //       return;
+  //     }
+  //     let products = await response.json();
+  //     this.setState({products: products})
+  //     return;
+  //   }
+  //   this.setState({ authenticate: false });
+  // }
   handleMeter = (e) =>{
     this.setState({
       met : e.target.value
@@ -94,8 +94,9 @@ class ModalBuyProduct extends Component {
     
   }
   render() {
-    console.log(this.state.products)
+    
     var {productdetail} = this.props;
+    console.log(productdetail.colors)
     return (
       <div className='ModalBuyProduct'>
         <div className="modal fade" id="exampleModal" tabIndex={-1} role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -109,21 +110,14 @@ class ModalBuyProduct extends Component {
                   <div className="form-group jkl pt-3"><input type="number" className="form-control inp" placeholder="Số Cuộn" onChange={(e)=>this.handleQuantity(e)}/></div>
                   <div className="form-group jkl pt-3"><input type="number" className="form-control inp" placeholder="Số mét" onChange={(e)=>this.handleMeter(e)}/></div>
                   <div className="mt-1"> <span className="fw-bold">Color</span>
-                    <select onChange={(e) =>this.handlecolor(e)}>
-                      {this.state.products.map((product,index)=>{
-                          if(product.name !== productdetail.name){
-                            return(
-                               <></>
-                            )
-                          }
-                          else{
-                            return <option value={product.color}>{product.color}</option>
-                          }
+                     <select onChange={(e) =>this.handlecolor(e)}> 
+                      {productdetail.colors.map((item,index)=>{
+                        return <option value={item}>{item}</option>
                       })}
                       
-                      {/* <option value="PURPIL">Tím</option>
-                      <option value="YELLOW">Vàng</option>
-                      <option value="GREEN">Xanh Lục</option>
+                      
+                      
+                      {/* <option value="GREEN">Xanh Lục</option>
                       <option value="BLACK">Đen</option>
                       <option value="WHITE">Trắng</option>
                       <option value="PINK">Hồng</option>

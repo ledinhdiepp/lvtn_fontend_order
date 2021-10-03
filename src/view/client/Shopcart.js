@@ -29,6 +29,7 @@ export default class Shopcart extends Component {
   checkOutClick = () =>{
       axios
         .post(process.env.REACT_APP_BACKEND_URL + '/orders',{
+          status:'checking',
           productList : this.state.productList,
           note:this.state.note,
           buyer:Cookie.get('id')
